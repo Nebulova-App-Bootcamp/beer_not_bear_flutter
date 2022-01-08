@@ -147,7 +147,7 @@ class Login extends StatelessWidget {
                                   text: "Login con Google",
                                   onPressed: () async {
                                     await authController.signInGoogle();
-                                    //await authController.signInAnonymous();
+                                    // await authController.signInAnonymous();
                                     Get.to(Home());
                                   },
                                 ),
