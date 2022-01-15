@@ -121,4 +121,10 @@ class AuthController extends GetxController {
       print(e);
     }
   }
+
+  // Sign out
+  Future<void> signOut() {
+    _googleSignIn.signOut();
+    return _auth.signOut();
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:beer_not_bear_flutter/controller/auth_controller.dart';
 import 'package:beer_not_bear_flutter/pages/login_register.dart';
 import 'package:beer_not_bear_flutter/theme/color_theme.dart';
 import 'package:beer_not_bear_flutter/theme/text_theme.dart';
@@ -9,6 +10,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthController authController = Get.find();
     return Scaffold(
         body: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,31 +30,35 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 70.0, left: 80, right: 80),
-          child: ClipRRect(
-            child: Image.asset("assets/image/accountPicture.png"),
-            borderRadius: BorderRadius.circular(50),
-          ),
-        ),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 40.0),
-            child: Text(
-              "Jose Manuel Barba",
-              style: textTheme.headline6,
+        if (authController.firestoreUser.value!.photoUrl != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 70.0, left: 80, right: 80),
+            child: ClipRRect(
+              child:
+                  Image.network(authController.firestoreUser.value!.photoUrl!),
+              borderRadius: BorderRadius.circular(50),
             ),
           ),
-        ),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 10.0),
-            child: Text(
-              "jose09511@gmail.com",
-              style: textTheme.headline5,
+        if (authController.firestoreUser.value!.name != null)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 40.0),
+              child: Text(
+                authController.firestoreUser.value!.name!,
+                style: textTheme.headline6,
+              ),
             ),
           ),
-        ),
+        if (authController.firestoreUser.value!.email != null)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Text(
+                authController.firestoreUser.value!.email!,
+                style: textTheme.headline5,
+              ),
+            ),
+          ),
         Container(
           padding: const EdgeInsets.only(left: 30, right: 30, top: 40),
           alignment: Alignment.bottomCenter,
@@ -75,8 +81,8 @@ class ProfilePage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
-              onPressed: () {
-                Get.to(LoginRegister());
+              onPressed: () async {
+                await authController.signOut();
               },
             ),
           ),

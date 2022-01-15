@@ -2,6 +2,7 @@
 // import 'package:get/get_state_manager/get_state_manager.dart';
 
 import 'package:beer_not_bear_flutter/controller/api_controller.dart';
+import 'package:beer_not_bear_flutter/controller/auth_controller.dart';
 import 'package:beer_not_bear_flutter/pages/api_test.dart';
 import 'package:beer_not_bear_flutter/pages/details_beer.dart';
 import 'package:beer_not_bear_flutter/pages/profile.dart';
@@ -15,6 +16,7 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthController authController = Get.find();
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.black),
@@ -23,50 +25,65 @@ class Home extends StatelessWidget {
         titleTextStyle: TextStyle(color: Colors.black),
         centerTitle: true,
       ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            UserAccountsDrawerHeader(
-                decoration: BoxDecoration(
-                  color: AppColors.orange,
-                ),
-                accountName: Text(
-                  "Jose Manuel Barba",
-                  style: textTheme.bodyText1,
-                ),
-                accountEmail: Text("jose09511@gmail.com"),
-                currentAccountPicture: CircleAvatar(
-                  child: ClipRRect(
-                    child: Image.asset("assets/image/accountPicture.png"),
-                    borderRadius: BorderRadius.circular(50),
+      drawer: Obx(
+        () => Drawer(
+          child: Column(
+            children: [
+              if (authController.firestoreUser.value != null)
+                UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(
+                    color: AppColors.orange,
                   ),
-                )),
-            ListTile(
-              trailing: Icon(Icons.favorite),
-              title: Text(
-                "Destacado",
-                style: TextStyle(color: Colors.black),
+                  accountName:
+                      (authController.firestoreUser.value!.name != null)
+                          ? Text(
+                              authController.firestoreUser.value!.name!,
+                              style: textTheme.bodyText1,
+                            )
+                          : Container(),
+                  accountEmail:
+                      (authController.firestoreUser.value!.email != null)
+                          ? Text(authController.firestoreUser.value!.email!)
+                          : Container(),
+                  currentAccountPicture: (authController
+                              .firestoreUser.value!.photoUrl !=
+                          null)
+                      ? CircleAvatar(
+                          child: ClipRRect(
+                            child: Image.network(
+                                authController.firestoreUser.value!.photoUrl!),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        )
+                      : Container(),
+                ),
+              ListTile(
+                trailing: Icon(Icons.favorite),
+                title: Text(
+                  "Destacado",
+                  style: TextStyle(color: Colors.black),
+                ),
+                onTap: () {
+                  JsonController jsonController = Get.find<JsonController>();
+                  Get.back();
+                  Get.to(() => DetailsBeer(
+                        beer: jsonController.beer[0],
+                      ));
+                },
               ),
-              onTap: () {
-                JsonController jsonController = Get.find<JsonController>();
-                Get.back();
-                Get.to(() => DetailsBeer(
-                      beer: jsonController.beer[0],
-                    ));
-              },
-            ),
-            ListTile(
-              trailing: Icon(Icons.accessibility_new_sharp),
-              title: Text(
-                "Perfil",
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Get.back();
-                Get.to(ProfilePage());
-              },
-            )
-          ],
+              ListTile(
+                trailing: Icon(Icons.accessibility_new_sharp),
+                title: Text(
+                  "Perfil",
+                  style: TextStyle(color: Colors.black),
+                ),
+                onTap: () {
+                  Get.back();
+                  Get.to(ProfilePage());
+                },
+              )
+            ],
+          ),
         ),
       ),
       body: APITest(),
