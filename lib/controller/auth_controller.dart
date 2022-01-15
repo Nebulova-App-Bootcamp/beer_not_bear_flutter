@@ -1,3 +1,10 @@
+import 'dart:isolate';
+
+import 'package:beer_not_bear_flutter/models/user_model.dart';
+import 'package:beer_not_bear_flutter/pages/home.dart';
+import 'package:beer_not_bear_flutter/pages/login_register.dart';
+import 'package:beer_not_bear_flutter/services/firestore/firestore_service.dart';
+import 'package:beer_not_bear_flutter/services/firestore/firestore_service_users.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -16,6 +23,51 @@ class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  Rxn<User> firebaseUser = Rxn<User>();
+  Rxn<UserModel> firestoreUser = Rxn<UserModel>();
+
+  @override
+  void onReady() async {
+    //run every time auth state change
+    ever(firebaseUser, handleAuthChanged);
+
+    firebaseUser.bindStream(user);
+    super.onReady();
+  }
+
+  //Firebase user a realtime stream
+  Stream<User?> get user => _auth.authStateChanges();
+
+  handleAuthChanged(_firebaseUser) async {
+    //get user data from firestore
+    if (_firebaseUser?.uid != null) {
+      if (firebaseUser.value?.isAnonymous == false)
+        firestoreUser.bindStream(streamFirestoreUser());
+    }
+
+    if (_firebaseUser == null) {
+      Get.offAll(LoginRegister());
+    } else {
+      Get.offAll(Home());
+    }
+  }
+
+  //get the firestore user from the firestore collection
+  Future<UserModel> getFirestoreUser() {
+    return _db.doc('/users/${firebaseUser.value!.uid}').get().then(
+        (documentSnapshot) => UserModel.fromJson(documentSnapshot.data()!));
+  }
+
+  //Streams the firestore user from the firestore collection
+  Stream<UserModel> streamFirestoreUser() {
+    return _db
+        .doc('users/${firebaseUser.value!.uid}')
+        .snapshots()
+        .map((snapshot) {
+      print(snapshot.data() as Map<String, dynamic>);
+      return UserModel.fromJson(snapshot.data() as Map<String, dynamic>);
+    });
+  }
 
   Future<User> signInAnonymous() async {
     UserCredential result = await _auth.signInAnonymously();
@@ -38,16 +90,17 @@ class AuthController extends GetxController {
       UserCredential result = await _auth.signInWithCredential(credential);
 
       //var doc = await FirestoreService("users").get(result.user!.uid);
+//
       //if (!doc.exists) {
-      // UserModel _newUser = UserModel(
-      //     uid: result.user!.uid,
-      //     email: result.user!.email,
-      //     name: result.user!.displayName!,
-      //     photoUrl: result.user!.photoURL!);
+      UserModel _newUser = UserModel(
+          uid: result.user!.uid,
+          email: result.user!.email,
+          name: result.user!.displayName!,
+          photoUrl: result.user!.photoURL!);
 
       //firestoreUser.value = _newUser;
 
-      // DatabaseUsers().createNewUser(_newUser);
+      DatabaseUsers().createNewUser(_newUser);
       //get token of mobile
       _firebaseMessaging.getToken().then((token) {
         saveTokens(token);
