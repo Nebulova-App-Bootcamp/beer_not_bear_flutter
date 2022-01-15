@@ -86,6 +86,35 @@ class Registrar extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.only(left: 30, right: 30),
                           width: double.infinity,
+                          child: Obx(
+                            () => GlobalTextField(
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                    authController.obscureTextPass.value == true
+                                        ? Icons.remove_red_eye
+                                        : Icons.remove_red_eye_outlined),
+                                color: Colors.black,
+                                onPressed: () {
+                                  authController.obscureTextPass.value =
+                                      !authController.obscureTextPass.value;
+                                },
+                              ),
+                              obscureText: authController.obscureTextPass.value,
+                              hintText: "Tu Contraseña",
+                              validator: FormValidator().isValidPass,
+                              keyboardType: TextInputType.text,
+                              controller: authController.passController,
+                              maxLines: 1,
+                              minLines: 1,
+                              onSave: (value) =>
+                                  authController.passController.text = value!,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Container(
+                          padding: const EdgeInsets.only(left: 30, right: 30),
+                          width: double.infinity,
                           child: Obx(() => GlobalTextField(
                                 validator: FormValidator().isValidPass,
                                 controller: authController.passController,
