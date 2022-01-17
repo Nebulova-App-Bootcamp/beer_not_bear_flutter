@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'dart:isolate';
 
 import 'package:beer_not_bear_flutter/models/user_model.dart';
 import 'package:beer_not_bear_flutter/pages/home.dart';
+import 'package:beer_not_bear_flutter/pages/intro.dart';
 import 'package:beer_not_bear_flutter/pages/login_register.dart';
 import 'package:beer_not_bear_flutter/services/firestore/firestore_service.dart';
 import 'package:beer_not_bear_flutter/services/firestore/firestore_service_users.dart';
@@ -46,7 +48,7 @@ class AuthController extends GetxController {
     }
 
     if (_firebaseUser == null) {
-      Get.offAll(LoginRegister());
+      Get.offAll(Intro());
     } else {
       Get.offAll(Home());
     }
@@ -74,6 +76,15 @@ class AuthController extends GetxController {
 
     print(result.user!.isAnonymous);
     return result.user!;
+  }
+
+  Future<void> updateUser(BuildContext context, UserModel user) async {
+    try {
+      _db.doc('/users/${user.uid}').update(user.toJson());
+      update();
+    } catch (err) {
+      log("$err");
+    }
   }
 
   Future<User?> signInGoogle() async {
