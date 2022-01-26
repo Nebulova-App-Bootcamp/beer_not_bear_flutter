@@ -10,6 +10,7 @@ import 'package:beer_not_bear_flutter/theme/color_theme.dart';
 import 'package:beer_not_bear_flutter/theme/text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
@@ -63,9 +64,14 @@ class Home extends StatelessWidget {
                   "Destacado",
                   style: TextStyle(color: Colors.black),
                 ),
-                onTap: () {
+                onTap: () async {
                   JsonController jsonController = Get.find<JsonController>();
                   Get.back();
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+
+                  jsonController.beer[0].isFavourite =
+                      (prefs.getBool("cerveza${jsonController.beer[0].id}"));
                   Get.to(() => DetailsBeer(
                         beer: jsonController.beer[0],
                       ));

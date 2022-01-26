@@ -1,5 +1,4 @@
 import 'package:beer_not_bear_flutter/controller/auth_controller.dart';
-import 'package:beer_not_bear_flutter/global_widget/show_alert_dialog.dart';
 import 'package:beer_not_bear_flutter/global_widget/textfield_global.dart';
 import 'package:beer_not_bear_flutter/pages/home.dart';
 import 'package:beer_not_bear_flutter/utils/form_validator.dart';
@@ -93,11 +92,11 @@ class Login extends StatelessWidget {
                               hintText: "Tu Contraseña",
                               validator: FormValidator().isValidPass,
                               keyboardType: TextInputType.text,
-                              controller: authController.passConfirmController,
+                              controller: authController.passController,
                               maxLines: 1,
                               minLines: 1,
-                              onSave: (value) => authController
-                                  .passConfirmController.text = value!,
+                              onSave: (value) =>
+                                  authController.passController.text = value!,
                             ),
                           ),
                         ),
@@ -143,15 +142,11 @@ class Login extends StatelessWidget {
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black)),
-                                onPressed: () {
-                                  if (authController
-                                          .passConfirmController.text !=
-                                      authController.passController.text) {
-                                    showAlertDialog(context, "Error",
-                                        "Las contraseñas no son iguales");
-                                  } else if (_formKey.currentState!
-                                      .validate()) {
-                                    Get.to(Home());
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    await authController
+                                        .signInWithEmailAndPassword();
+                                    // Get.to(Home());
                                     Get.snackbar(
                                       "Your data is correct",
                                       "Wellcome",

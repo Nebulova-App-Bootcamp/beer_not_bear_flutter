@@ -1,11 +1,7 @@
 import 'dart:developer';
-import 'dart:isolate';
-
 import 'package:beer_not_bear_flutter/models/user_model.dart';
 import 'package:beer_not_bear_flutter/pages/home.dart';
 import 'package:beer_not_bear_flutter/pages/intro.dart';
-import 'package:beer_not_bear_flutter/pages/login_register.dart';
-import 'package:beer_not_bear_flutter/services/firestore/firestore_service.dart';
 import 'package:beer_not_bear_flutter/services/firestore/firestore_service_users.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,6 +23,11 @@ class AuthController extends GetxController {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   Rxn<User> firebaseUser = Rxn<User>();
   Rxn<UserModel> firestoreUser = Rxn<UserModel>();
+
+  @override
+  void onInit() {
+    super.onInit();
+  }
 
   @override
   void onReady() async {
@@ -87,6 +88,47 @@ class AuthController extends GetxController {
     }
   }
 
+  registerWithEmailAndPassword() async {
+    try {
+      await _auth
+          .createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passController.text,
+      )
+          .then((result) async {
+        print("UID: " + result.user!.uid.toString());
+        print("email: " + result.user!.email.toString());
+
+        UserModel _newUser = UserModel(
+          uid: result.user!.uid,
+          email: result.user!.email,
+          name: "user",
+          photoUrl: "https://picsum.photos/250?image=9",
+        );
+        DatabaseUsers().createNewUser(_newUser);
+        Get.to(Home());
+      });
+    } on FirebaseAuthException catch (error) {
+      print(error.message);
+    }
+  }
+
+  signInWithEmailAndPassword() async {
+    try {
+      print(emailController.text.trim());
+      print(passController.text.trim());
+      await _auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passController.text.trim(),
+      );
+      emailController.clear();
+      passController.clear();
+      Get.to(Home());
+    } catch (err) {
+      print(err);
+    }
+  }
+
   Future<User?> signInGoogle() async {
     GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -100,16 +142,12 @@ class AuthController extends GetxController {
 
       UserCredential result = await _auth.signInWithCredential(credential);
 
-      //var doc = await FirestoreService("users").get(result.user!.uid);
-//
-      //if (!doc.exists) {
       UserModel _newUser = UserModel(
-          uid: result.user!.uid,
-          email: result.user!.email,
-          name: result.user!.displayName!,
-          photoUrl: result.user!.photoURL!);
-
-      //firestoreUser.value = _newUser;
+        uid: result.user!.uid,
+        email: result.user!.email,
+        name: result.user!.displayName!,
+        photoUrl: result.user!.photoURL!,
+      );
 
       DatabaseUsers().createNewUser(_newUser);
       //get token of mobile
@@ -117,10 +155,22 @@ class AuthController extends GetxController {
         saveTokens(token);
       });
 
+      Get.to(Home());
+
       return result.user;
     }
 
     return null;
+  }
+
+  //Pasword reset email
+  Future<void> sendPasswordResetEmail() async {
+    try {
+      await _auth.sendPasswordResetEmail(email: emailController.text);
+      Get.snackbar("OYE USUARIOOOO", "TE HEMOS ENVIADO UN EMAIL");
+    } on FirebaseAuthException catch (error) {
+      print(error.message);
+    }
   }
 
   Future<void> saveTokens(var token) async {

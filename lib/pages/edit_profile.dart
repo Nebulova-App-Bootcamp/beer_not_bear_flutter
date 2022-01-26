@@ -12,6 +12,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class EditProfile extends StatelessWidget {
   final AuthController authController = Get.find();
+
   final picker = ImagePicker();
 
   @override
@@ -120,6 +121,7 @@ class EditProfile extends StatelessWidget {
         await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
 
     print(image!.path);
+    _uploadFile(context, File(image.path));
   }
 
   void _showPicker(context) {

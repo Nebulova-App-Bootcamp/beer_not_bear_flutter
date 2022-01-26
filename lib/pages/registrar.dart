@@ -254,13 +254,15 @@ class Registrar extends StatelessWidget {
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black)),
-                                onPressed: () {
+                                onPressed: () async {
                                   if (authController.checkboxValue.value ==
                                       false) {
                                     showAlertDialog(context, "Error",
                                         "Debes aceptar las condiciones de uso");
                                   } else if (_formKey.currentState!
                                       .validate()) {
+                                    await authController
+                                        .registerWithEmailAndPassword();
                                     Get.to(Home());
                                     // ScaffoldMessenger.of(context)
                                     //     .showSnackBar(
