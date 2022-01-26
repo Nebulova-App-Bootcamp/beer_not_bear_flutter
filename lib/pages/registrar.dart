@@ -100,7 +100,7 @@ class Registrar extends StatelessWidget {
                                 },
                               ),
                               obscureText: authController.obscureTextPass.value,
-                              hintText: "Tu Contraseña",
+                              hintText: "Tu contraseña",
                               validator: FormValidator().isValidPass,
                               keyboardType: TextInputType.text,
                               controller: authController.passController,
@@ -117,10 +117,11 @@ class Registrar extends StatelessWidget {
                           width: double.infinity,
                           child: Obx(() => GlobalTextField(
                                 validator: FormValidator().isValidPass,
-                                controller: authController.passController,
+                                controller:
+                                    authController.passConfirmController,
                                 obscureText:
                                     authController.obscureTextPass.value,
-                                hintText: "Tu contraseña",
+                                hintText: "Repite tuu contraseña",
                                 keyboardType: TextInputType.text,
                                 maxLines: 1,
                                 minLines: 1,
@@ -136,7 +137,8 @@ class Registrar extends StatelessWidget {
                                           !authController.obscureTextPass.value;
                                     }),
                                 onSave: (value) {
-                                  authController.passController.text = value!;
+                                  authController.passConfirmController.text =
+                                      value!;
                                 },
                               )),
 
@@ -229,7 +231,7 @@ class Registrar extends StatelessWidget {
                               onPressed: () async {
                                 await authController.signInGoogle();
                                 // await authController.signInAnonymous();
-                                Get.to(Home());
+                                //Get.to(Home());
                               },
                             ),
                           ),
@@ -259,11 +261,17 @@ class Registrar extends StatelessWidget {
                                       false) {
                                     showAlertDialog(context, "Error",
                                         "Debes aceptar las condiciones de uso");
+                                  } else if (authController
+                                          .passController.value !=
+                                      authController
+                                          .passConfirmController.value) {
+                                    showAlertDialog(context, "Error",
+                                        "Las contraseñas no son iguales");
                                   } else if (_formKey.currentState!
                                       .validate()) {
                                     await authController
-                                        .registerWithEmailAndPassword();
-                                    Get.to(Home());
+                                        .registerWithEmailAndPassword(context);
+                                    // Get.to(Home());
                                     // ScaffoldMessenger.of(context)
                                     //     .showSnackBar(
                                     //   SnackBar(

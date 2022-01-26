@@ -1,6 +1,5 @@
 import 'package:beer_not_bear_flutter/controller/auth_controller.dart';
 import 'package:beer_not_bear_flutter/global_widget/textfield_global.dart';
-import 'package:beer_not_bear_flutter/pages/home.dart';
 import 'package:beer_not_bear_flutter/utils/form_validator.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:get/get.dart';
@@ -115,7 +114,7 @@ class Login extends StatelessWidget {
                               onPressed: () async {
                                 await authController.signInGoogle();
                                 // await authController.signInAnonymous();
-                                Get.to(Home());
+                                //Get.to(Home());
                               },
                             ),
                           ),

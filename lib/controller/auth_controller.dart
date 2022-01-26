@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:beer_not_bear_flutter/global_widget/show_alert_dialog.dart';
 import 'package:beer_not_bear_flutter/models/user_model.dart';
 import 'package:beer_not_bear_flutter/pages/home.dart';
 import 'package:beer_not_bear_flutter/pages/intro.dart';
@@ -14,6 +15,7 @@ class AuthController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
   TextEditingController passConfirmController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   GoogleSignIn _googleSignIn = GoogleSignIn();
   RxBool checkboxValue = false.obs;
   RxBool obscurePassConfirmation = true.obs;
@@ -27,6 +29,15 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    emailController.dispose();
+    passController.dispose();
+    nameController.dispose();
+    passConfirmController.dispose();
+    super.onClose();
   }
 
   @override
@@ -79,7 +90,7 @@ class AuthController extends GetxController {
     return result.user!;
   }
 
-  Future<void> updateUser(BuildContext context, UserModel user) async {
+  Future<void> updateUser(UserModel user) async {
     try {
       _db.doc('/users/${user.uid}').update(user.toJson());
       update();
@@ -88,7 +99,7 @@ class AuthController extends GetxController {
     }
   }
 
-  registerWithEmailAndPassword() async {
+  registerWithEmailAndPassword(BuildContext context) async {
     try {
       await _auth
           .createUserWithEmailAndPassword(
@@ -110,6 +121,7 @@ class AuthController extends GetxController {
       });
     } on FirebaseAuthException catch (error) {
       print(error.message);
+      showAlertDialog(context, "Error", "${error.message}");
     }
   }
 

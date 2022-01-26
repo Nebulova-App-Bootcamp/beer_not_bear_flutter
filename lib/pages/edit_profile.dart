@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:beer_not_bear_flutter/controller/auth_controller.dart';
+import 'package:beer_not_bear_flutter/global_widget/textfield_global.dart';
 import 'package:beer_not_bear_flutter/models/user_model.dart';
-import 'package:beer_not_bear_flutter/services/firestore/firestore_service_users.dart';
 import 'package:beer_not_bear_flutter/theme/color_theme.dart';
-import 'package:beer_not_bear_flutter/theme/text_theme.dart';
+
+import 'package:beer_not_bear_flutter/utils/form_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,22 +20,25 @@ class EditProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(
-        () => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        () => ListView(
           children: [
             Padding(
               padding: EdgeInsets.only(top: 80, left: 40),
-              child: Container(
-                height: 40,
-                width: 40,
-                color: AppColors.orange,
-                child: GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
+              child: Row(
+                children: [
+                  Container(
+                    height: 40,
+                    width: 40,
+                    color: AppColors.orange,
+                    child: GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
             if (authController.firestoreUser.value!.photoUrl != null)
@@ -81,26 +85,62 @@ class EditProfile extends StatelessWidget {
                 ),
               ),
             ),
-            if (authController.firestoreUser.value!.name != null)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 40.0),
-                  child: Text(
-                    authController.firestoreUser.value!.name!,
-                    style: textTheme.headline6,
-                  ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Container(
+                padding: const EdgeInsets.only(left: 30, right: 30),
+                width: double.infinity,
+                child: GlobalTextField(
+                  validator: FormValidator().isValidEmail,
+                  controller: authController.nameController,
+                  obscureText: false,
+                  hintText:
+                      authController.firestoreUser.value!.name ?? "Tu nombre",
+                  keyboardType: TextInputType.emailAddress,
+                  maxLines: 1,
+                  minLines: 1,
+                  onSave: (value) {
+                    authController.nameController.text = value!;
+                  },
                 ),
               ),
-            if (authController.firestoreUser.value!.email != null)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Text(
-                    authController.firestoreUser.value!.email!,
-                    style: textTheme.headline5,
+            ),
+            Container(
+              padding: const EdgeInsets.only(left: 30, right: 30),
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 50,
+                width: double.infinity,
+                child: TextButton(
+                  style: ButtonStyle(
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.blue[200])),
+                  child: const Text(
+                    "EDITAR NOMBRE",
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
+                  onPressed: () async {
+                    if (authController.nameController.text != "") {
+                      UserModel _updatedUser = UserModel(
+                        uid: authController.firestoreUser.value!.uid,
+                        email: authController.firestoreUser.value!.email,
+                        name: authController.nameController.text,
+                        photoUrl: authController.firestoreUser.value!.photoUrl,
+                      );
+                      authController.updateUser(_updatedUser);
+                    }
+                  },
                 ),
               ),
+            ),
           ],
         ),
       ),
@@ -176,7 +216,7 @@ class EditProfile extends StatelessWidget {
           name: authController.firestoreUser.value!.name,
           photoUrl: url,
         );
-        authController.updateUser(context, _updatedUser);
+        authController.updateUser(_updatedUser);
       });
     });
   }

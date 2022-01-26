@@ -46,17 +46,23 @@ class Home extends StatelessWidget {
                       (authController.firestoreUser.value!.email != null)
                           ? Text(authController.firestoreUser.value!.email!)
                           : Container(),
-                  currentAccountPicture: (authController
-                              .firestoreUser.value!.photoUrl !=
-                          null)
-                      ? CircleAvatar(
-                          child: ClipRRect(
-                            child: Image.network(
-                                authController.firestoreUser.value!.photoUrl!),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                        )
-                      : Container(),
+                  currentAccountPicture:
+                      (authController.firestoreUser.value!.photoUrl != null)
+                          ? CircleAvatar(
+                              child: ClipRRect(
+                                child: Container(
+                                  color: Colors.green,
+                                  height: double.infinity,
+                                  child: Image.network(
+                                    authController
+                                        .firestoreUser.value!.photoUrl!,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                            )
+                          : Container(),
                 ),
               ListTile(
                 trailing: Icon(Icons.favorite),
