@@ -1,7 +1,9 @@
+import 'package:beer_not_bear_flutter/controller/product_controller.dart';
 import 'package:beer_not_bear_flutter/pages/details_beer.dart';
 import 'package:flutter/material.dart';
 import 'package:beer_not_bear_flutter/controller/api_controller.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class APITest extends StatelessWidget {
   const APITest({Key? key}) : super(key: key);
@@ -22,7 +24,19 @@ class APITest extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
-                            onTap: () {
+                            onTap: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              ProductController productController =
+                                  Get.put(ProductController());
+
+                              jsonController.beer[index].isFavourite =
+                                  (prefs.getBool(
+                                      "cerveza${jsonController.beer[index].id}"));
+                              (jsonController.beer[index].isFavourite != null)
+                                  ? productController.isFavourite.value =
+                                      jsonController.beer[index].isFavourite!
+                                  : productController.isFavourite.value = false;
                               Get.to(() => DetailsBeer(
                                   beer: jsonController.beer[index]));
                             },

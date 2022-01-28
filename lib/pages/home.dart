@@ -5,6 +5,7 @@ import 'package:beer_not_bear_flutter/controller/api_controller.dart';
 import 'package:beer_not_bear_flutter/controller/auth_controller.dart';
 import 'package:beer_not_bear_flutter/pages/api_test.dart';
 import 'package:beer_not_bear_flutter/pages/details_beer.dart';
+import 'package:beer_not_bear_flutter/pages/favourite_page.dart';
 import 'package:beer_not_bear_flutter/pages/profile.dart';
 import 'package:beer_not_bear_flutter/theme/color_theme.dart';
 import 'package:beer_not_bear_flutter/theme/text_theme.dart';
@@ -71,16 +72,9 @@ class Home extends StatelessWidget {
                   style: TextStyle(color: Colors.black),
                 ),
                 onTap: () async {
-                  JsonController jsonController = Get.find<JsonController>();
                   Get.back();
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
 
-                  jsonController.beer[0].isFavourite =
-                      (prefs.getBool("cerveza${jsonController.beer[0].id}"));
-                  Get.to(() => DetailsBeer(
-                        beer: jsonController.beer[0],
-                      ));
+                  Get.to(() => FavouritePage());
                 },
               ),
               ListTile(

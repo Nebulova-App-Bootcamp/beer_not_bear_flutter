@@ -14,30 +14,12 @@ class DetailsBeer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ProductController productController = Get.put(ProductController());
+    ProductController productController = Get.find();
     String url = beer.image_url!;
     String title = beer.name!;
     String description = beer.description!;
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          print(beer.id);
-          print("Valor antes de sharedpreferences: ${beer.isFavourite}");
-          print(beer.isFavourite);
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-
-          // beer.isFavourite = (prefs.getBool("cerveza${beer.id}"));
-          print("¿Mi cerveza es favorita? " + "${beer.isFavourite}");
-          await prefs.setBool(
-              'cerveza${beer.id}', productController.isFavourite.value);
-
-          // await prefs.setString("key", json.encode(beer));
-
-          beer.toString();
-          print(beer.toJson());
-        },
-      ),
       body: ListView(
         shrinkWrap: true,
         children: [
@@ -48,12 +30,12 @@ class DetailsBeer extends StatelessWidget {
                 padding: EdgeInsets.only(top: 40, left: 40, right: 40),
                 child: Row(
                   children: [
-                    Container(
-                      height: 40,
-                      width: 40,
-                      color: AppColors.orange,
-                      child: GestureDetector(
-                        onTap: () => Get.back(),
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        color: AppColors.orange,
                         child: Icon(
                           Icons.arrow_back,
                           color: Colors.white,
@@ -61,20 +43,66 @@ class DetailsBeer extends StatelessWidget {
                       ),
                     ),
                     Spacer(),
-                    Container(
-                      height: 40,
-                      width: 40,
-                      color: AppColors.orange,
-                      child: GestureDetector(
-                        onTap: () {
-                          print(beer.isFavourite);
+                    Obx(
+                      () => GestureDetector(
+                        onTap: () async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+
+                          productController.getFavourites();
+                          productController.isFavourite.value =
+                              !productController.isFavourite.value;
                           beer.isFavourite =
                               productController.isFavourite.value;
-                          print(beer.isFavourite);
+                          if (productController.isFavourite.value == true) {
+                            productController.favouritesBeersString
+                                .add(jsonEncode(beer));
+                            Set<String> otherList =
+                                productController.favouritesBeersString.toSet();
+
+                            productController.favouritesBeersString.value =
+                                otherList.toList();
+
+                            await prefs.setStringList("favouritesBeers",
+                                productController.favouritesBeersString);
+
+                            print(
+                                productController.favouritesBeersString.length);
+                          }
+
+                          if (productController.isFavourite.value == false) {
+                            print(productController.favouritesBeersString);
+                            beer.isFavourite = true;
+                            String _remove = jsonEncode(beer);
+
+                            print(_remove);
+                            productController.favouritesBeersString
+                                .remove(_remove);
+                            print(productController.favouritesBeersString);
+
+                            await prefs.setStringList("favouritesBeers",
+                                productController.favouritesBeersString);
+                            print(
+                                productController.favouritesBeersString.length);
+                            beer.isFavourite = false;
+                          }
+
+                          await prefs.setBool('cerveza${beer.id}',
+                              productController.isFavourite.value);
+                          // beer.isFavourite = (prefs.getBool("cerveza${beer.id}"));
+                          print("¿Mi cerveza es favorita? " +
+                              "${beer.isFavourite}");
                         },
-                        child: Icon(
-                          Icons.star,
-                          color: Colors.white,
+                        child: Container(
+                          height: 40,
+                          width: 40,
+                          color: AppColors.orange,
+                          child: Icon(
+                            Icons.star,
+                            color: (productController.isFavourite.value == true)
+                                ? Colors.yellow
+                                : Colors.white,
+                          ),
                         ),
                       ),
                     ),
