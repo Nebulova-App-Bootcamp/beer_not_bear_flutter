@@ -12,21 +12,33 @@ class ProductController extends GetxController {
   final favouritesBeers = <Beer>[].obs;
 
   Future<void> getFavourites() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final _response = prefs.getStringList("favouritesBeers");
+      final _response = prefs.getString("favouritesBeers");
 
-    final List<dynamic> _mapResponse = jsonDecode(_response.toString());
+      final List<dynamic> _mapResponse = jsonDecode(_response!);
 
-    print(_mapResponse);
+      print(_mapResponse);
 
-    final List<Beer> _listResponse =
-        _mapResponse.map((e) => Beer.fromJson(e)).toList();
+      final List<Beer> _listResponse =
+          _mapResponse.map((e) => Beer.fromJson(e)).toList();
 
-    print(_listResponse);
+      print(_listResponse);
 
-    favouritesBeers.value = _listResponse;
+      favouritesBeers.value = _listResponse;
 
-    print(favouritesBeers);
+      print(favouritesBeers);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Beer? findBeer(int id) {
+    try {
+      return favouritesBeers.firstWhere((book) => book.id == id);
+    } catch (e) {
+      print(e);
+    }
   }
 }

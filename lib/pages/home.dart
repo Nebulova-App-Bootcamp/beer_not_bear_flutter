@@ -3,6 +3,7 @@
 
 import 'package:beer_not_bear_flutter/controller/api_controller.dart';
 import 'package:beer_not_bear_flutter/controller/auth_controller.dart';
+import 'package:beer_not_bear_flutter/controller/product_controller.dart';
 import 'package:beer_not_bear_flutter/pages/api_test.dart';
 import 'package:beer_not_bear_flutter/pages/details_beer.dart';
 import 'package:beer_not_bear_flutter/pages/favourite_page.dart';
@@ -19,6 +20,8 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AuthController authController = Get.find();
+
+    ProductController productController = Get.put(ProductController());
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.black),
@@ -73,6 +76,8 @@ class Home extends StatelessWidget {
                 ),
                 onTap: () async {
                   Get.back();
+
+                  productController.getFavourites();
 
                   Get.to(() => FavouritePage());
                 },

@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailsBeer extends StatelessWidget {
   final Beer beer;
+
   DetailsBeer({Key? key, required this.beer}) : super(key: key);
 
   @override
@@ -49,49 +50,31 @@ class DetailsBeer extends StatelessWidget {
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
 
-                          productController.getFavourites();
                           productController.isFavourite.value =
                               !productController.isFavourite.value;
                           beer.isFavourite =
                               productController.isFavourite.value;
-                          if (productController.isFavourite.value == true) {
-                            productController.favouritesBeersString
-                                .add(jsonEncode(beer));
-                            Set<String> otherList =
-                                productController.favouritesBeersString.toSet();
-
-                            productController.favouritesBeersString.value =
-                                otherList.toList();
-
-                            await prefs.setStringList("favouritesBeers",
-                                productController.favouritesBeersString);
-
-                            print(
-                                productController.favouritesBeersString.length);
-                          }
-
-                          if (productController.isFavourite.value == false) {
-                            print(productController.favouritesBeersString);
-                            beer.isFavourite = true;
-                            String _remove = jsonEncode(beer);
-
-                            print(_remove);
-                            productController.favouritesBeersString
-                                .remove(_remove);
-                            print(productController.favouritesBeersString);
-
-                            await prefs.setStringList("favouritesBeers",
-                                productController.favouritesBeersString);
-                            print(
-                                productController.favouritesBeersString.length);
-                            beer.isFavourite = false;
-                          }
 
                           await prefs.setBool('cerveza${beer.id}',
                               productController.isFavourite.value);
                           // beer.isFavourite = (prefs.getBool("cerveza${beer.id}"));
                           print("¿Mi cerveza es favorita? " +
                               "${beer.isFavourite}");
+
+                          await productController.getFavourites();
+                          Beer? findBeer = productController.findBeer(beer.id!);
+
+                          if (findBeer == null) {
+                            productController.favouritesBeers.add(beer);
+                            await prefs.setString("favouritesBeers",
+                                jsonEncode(productController.favouritesBeers));
+                          } else {
+                            productController.favouritesBeers.removeWhere(
+                                (element) => element.id == beer.id);
+
+                            await prefs.setString("favouritesBeers",
+                                jsonEncode(productController.favouritesBeers));
+                          }
                         },
                         child: Container(
                           height: 40,
